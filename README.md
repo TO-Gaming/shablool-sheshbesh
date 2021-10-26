@@ -1,7 +1,6 @@
-# shablool-sheshbesh
 <div dir='rtl' lang='he'>
 
-# כותרת ראשית: שם המשחק
+# shablool-sheshbesh
 
 **tagline: משפט שיווקי קצר וקליט המתאר את המשחק**
 
