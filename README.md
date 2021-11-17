@@ -5,13 +5,24 @@
 **אזהרה - משחק ממכר**
 https://to-gaming.itch.io/shablul-backgammon (Beta)
   
-## Changes:
+##  Scenes Prefabs and Scripts:
+  
+  # Scenes:
+  Lobby - in the lobby the player can choose if he wants to start or to do the tutorial (not implemented yet).<br />
+  SampleScene (Main Game) - the main scene of the game.<br />
+  Tutorial - in this scene the player is about to understand the rules of Shablul-Sheshbesh.<br />
+  
+  # Prefabs:
+  WhitePiece - represents one white soldier (Dragable) .<br />
+  CustomTile - the editor can configure the contents of each Tile.<br />
+  
+  .<br />
+  
   # Scripts and effects:
-  AddRemove.cs - Makes every Tile (24 tiles in game) be able to instanciate 'Soldiers'(Black or White) along the Tile.
-  DragObject.cs - makes evry 'soldier' moveable by calculating x and z from mouse to soldier.
-  DiceResults.cs - Sets new Dice values (and shake the dices) , visable on screen.
-  
-  
+  AddRemove.cs - Makes every Tile (24 tiles in game) be able to instanciate 'Soldiers'(Black or White) along the Tile.<br />
+  DragObject.cs - makes evry 'soldier' moveable by calculating x and z from mouse to soldier.<br />
+  DiceResults.cs - Sets new Dice values (and shake the dices) , visable on screen.<br />
+  Dice (Physics material) - bounciness to the required objects.
 ## מהות המשחק
 
  שבלול שש בש זה משחק אשר מאפשר חוויה הרבה יותר אינטנסיבית כי מדובר בגרסא שונה לחלוטין שמציעה למשתמש גם אופציות שונות תוך כדי המשחק, המשחק עצמו הוא מתחיל כמו שש בש אבל כאשר אתה הורג חייל של האויב הוא יוצא מהמשחק, ואתה מקבל על זה קרדיט, או כאשר השחקן מתקדם ועובר את ה"מעבר להתחלה", ואז בקרדיט שהרוויח יכול לרכוש "קלף כוח" שאיתו יוכל להשפיע על המשחק.
