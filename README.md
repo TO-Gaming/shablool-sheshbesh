@@ -3,6 +3,7 @@
 # shablool-sheshbesh
 
 **אזהרה - משחק ממכר**
+https://to-gaming.itch.io/shablul-backgammon (Beta)
   
 ## מהות המשחק
 
