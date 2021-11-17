@@ -15,8 +15,10 @@ https://to-gaming.itch.io/shablul-backgammon (Beta)
   ## Prefabs:
   WhitePiece - represents one white soldier (Dragable) .<br />
   CustomTile - the editor can configure the contents of each Tile.<br />
-  
-  .<br />
+  GroupTiles - a prefab that holds 6 Customizable Tiles next to each other (4 pieces in game board) <br /> 
+  Dice (toQuit) - in Game option to exit to Lobby .<br />
+  Dice (toStart) - in Game option to Start the Game.<br />
+  Dice (toRoll) - grey cylinder Object to trigger Roll .<br />
   
   ## Scripts and effects:
   AddRemove.cs - Makes every Tile (24 tiles in game) be able to instanciate 'Soldiers'(Black or White) along the Tile.<br />
