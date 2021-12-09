@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// piece class - helps for filling tiles with this object
 public class Piece : MonoBehaviour
 {
     public int color;

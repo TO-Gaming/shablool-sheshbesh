@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// this script is for holding results of current roll,
 public class DiceResults : MonoBehaviour
 {
     [SerializeField]
@@ -23,10 +24,10 @@ public class DiceResults : MonoBehaviour
         //rb.AddForce(new Vector3(0, -5, 0));
         //int result = Random.Range(1, 7);
         //int result2 = Random.Range(1, 7);
-        int result = res1Text;
-        int result2 = res2Text;
-        ans = diceResText.GetComponent<Text>();
-        ans.text = "Dice 1: " + result + "\n Dice 2: " + result2;
+        //int result = res1Text;
+        //int result2 = res2Text;
+        //ans = diceResText.GetComponent<Text>();
+        //ans.text = "Dice 1: " + result + "\n Dice 2: " + result2;
     }
     void Start()
     {

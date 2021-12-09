@@ -57,10 +57,6 @@ public class TileManage : MonoBehaviour
 
     }
 
-    public static void PassedLoop()
-    {
-
-    }
 
     // Update is called once per frame
     void Update()
@@ -68,6 +64,7 @@ public class TileManage : MonoBehaviour
         
     }
 
+    // this func checks if the player can move to the asked position.
     public int isMovable(int srcIndex, int destIndex) // -1 false 1 can move 2 can eat 
     {
         int srcColor = GameTiles[srcIndex].colorTile;
@@ -87,6 +84,7 @@ public class TileManage : MonoBehaviour
         
     }
 
+    // main function to move the right checker according to what player ask, and player color
     public void MoveCheckers(int playerColor, int srcIndex, int numofMoves)
     {
         int destIndex = srcIndex;
@@ -139,15 +137,7 @@ public class TileManage : MonoBehaviour
             GameManager.textBox.text = "you cannot do that!";
 
         }
+
     }
 
-    public int getDestIndexForPlayer(int srcIndex,int numOfPlay, int PlayerColor)
-    {
-        int ans = srcIndex;
-        if(PlayerColor==white)
-        {
-            
-        }
-        return ans;
-    }
 }

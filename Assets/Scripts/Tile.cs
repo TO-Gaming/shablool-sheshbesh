@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//  tile class, holds pieces and also makes it possible for the tilemanager to do some tasks within the tiles.
 public class Tile : MonoBehaviour
 {
     
@@ -9,35 +10,36 @@ public class Tile : MonoBehaviour
     private GameObject White;
     [SerializeField]
     private GameObject Black;
-    
+     [SerializeField]
+    public int colorTile;
+    public float reduceZ=0f;
+    [SerializeField]
+    private int numCheckers=0;
+    [SerializeField]
+    private int index;
+
+
     private static int white = 1;
     private static int black = 0;
     private readonly int empty = -1;
     private static float space = -4.5f;
 
-    [SerializeField]
-    public int colorTile;
-    public float reduceZ=0f;
-    [SerializeField]
-    private int numCheckers=0;
-    // Start is called before the first frame update
+   
+    public MeshRenderer mr;
     public List<Piece> pieces = new List<Piece>();
     public List<GameObject> pieceObjects = new List<GameObject>();
     private bool hasStarted;
-    [SerializeField]
-    private int index;
     private bool Clickable;
     public bool HasChosen;
-    public MeshRenderer mr;
-
+   
     void Start()
     {
         hasStarted = false;
-        
         Clickable = true;
         HasChosen = false;
     }
 
+    //tile is pressable when it is play time.
     void OnMouseUp()
     {
         Debug.Log("before Clickable");
@@ -66,7 +68,7 @@ public class Tile : MonoBehaviour
     }
 
 
-
+    // func that fills the tile with the required amount and color (for the init)
     public void StartFillTiles(int num, int color)
     {
         Debug.Log("start filling tiles "+num);
@@ -88,7 +90,7 @@ public class Tile : MonoBehaviour
         colorTile = color;
     }
   
-
+    // adds pieces to the Tile, counting and saving in a list. (reducez is for the spaces for each new object)
     public void AddPiece()
     {
         
@@ -117,7 +119,7 @@ public class Tile : MonoBehaviour
     }
 
 
-
+    // removes piece from tile, (the top one), also count and update reducez
     public void RemovePiece()
     {
         Debug.Log("try to remove, pieces count is : "+ pieces.Count);

@@ -7,7 +7,6 @@ public class RollDice : MonoBehaviour
 {
     [SerializeField]
     GameObject diceResText;
-
     [SerializeField]
     GameManager GM;
 
@@ -34,6 +33,8 @@ public class RollDice : MonoBehaviour
         J1 = dice1.gameObject.GetComponent<JumpDice>();
         J2 = dice2.gameObject.GetComponent<JumpDice>();
     }
+
+    // finish getting result and update it.
     public void UpdateRes()
     {
         //int result = Random.Range(1, 7);
@@ -46,6 +47,8 @@ public class RollDice : MonoBehaviour
         GM.WriteButtonA(""+result);
         GM.WriteButtonB("" + result2);
     }
+
+    // when pressing & relevant makes the dice jump.
     void OnMouseUp()
     {
         if(J1.hasLanded && J2.hasLanded && FreeTurn)
@@ -57,6 +60,7 @@ public class RollDice : MonoBehaviour
             pressed = true;
         }   
     }
+
     private void Update()
     {
         if (J1.hasLanded && J2.hasLanded)
@@ -66,6 +70,7 @@ public class RollDice : MonoBehaviour
         }
     }
 
+    //important func for blocking and setting new results for the game.
     public bool BothLanded()
     {
         

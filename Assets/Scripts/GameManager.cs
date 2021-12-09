@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+// enum states , makes it possible to switch between player states.
 public enum PlayerState
 {
     StartScreen,
@@ -16,6 +17,8 @@ public enum PlayerState
 }
 public class GameManager : MonoBehaviour
 {
+    //requiered objects
+
     [SerializeField]
     private GameObject Roll;
     [SerializeField]
@@ -31,11 +34,27 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private TileManage T;
     [SerializeField]
-    private GameObject [] PlayingOptions;
+    private GameObject[] PlayingOptions;
     [SerializeField]
     private GameObject GamePanel;
     [SerializeField]
     private GameObject DiceField;
+    [SerializeField]
+    private Light DiceLight;
+    [SerializeField]
+    private Light RollLight;
+    [SerializeField]
+    private Light WhiteLight;
+    [SerializeField]
+    private Light BlackLight;
+    [SerializeField]
+    public Text CoinsAText;
+    [SerializeField]
+    public Text CoinsBText;
+    [SerializeField]
+    public TextMesh MiddleText;
+
+    //magic numberds
 
     private readonly int startCoins = 0;
     private readonly int white = 1;
@@ -44,7 +63,7 @@ public class GameManager : MonoBehaviour
     private readonly int Water = 2;
     private readonly int Earth = 3;
     private readonly int Wind = 4;
-    
+
 
     //private string playerTurn;
 
@@ -64,7 +83,7 @@ public class GameManager : MonoBehaviour
 
     // Start is called before the first frame update
 
-    
+
 
 
     void Start()
@@ -79,7 +98,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("playerA color" + BlackP.playerColor);
         Debug.Log("playerB color" + WhiteP.playerColor);
         EffectPanel.SetActive(true);
-        BlackP.curState = PlayerState.NeedToRoll;
+        BlackP.curState = PlayerState.StartScreen;
         WhiteP.curState = PlayerState.WaitForTurn;
         gameOver = false;
         hasRes = false;
@@ -87,46 +106,49 @@ public class GameManager : MonoBehaviour
         PlayingPlayer = "Black";
         PlayerCur = BlackP;
         PlayerCur.resetRolled();
-        PlayerCur.HasFinishedPlaying = false;
+        WhiteLight.gameObject.SetActive(false);
+        BlackLight.gameObject.SetActive(true);
+        DiceLight.gameObject.SetActive(false);
+        RollLight.gameObject.SetActive(false);
+        CoinsAText.text = "Black - Shablul Coins : " + BlackP.ShabCoins;
+        CoinsBText.text = "White - Shablul Coins : " + WhiteP.ShabCoins;
         T.initTiles();
         T.FillBoard();
         //StartCoroutine((IEnumerator)WaitForMovesEnd());
     }
 
-    
 
-    // Update is called once per frame
+
+    // Update makes the flow of the game whith states
     void Update()
     {
-        // PlayerCur
-        // stateCur
-        
+
         switch (PlayerCur.curState)
         {
             case PlayerState.StartScreen:
-                Turntext.text = PlayerCur.curState.ToString();
+                Turntext.text = "What is your power?";
                 EffectPanel.SetActive(true);
                 WhiteP.curState = PlayerState.WaitForTurn;
                 break;
             case PlayerState.NeedToRoll:
                 EffectPanel.SetActive(false);
-                Turntext.text = PlayerCur.curState.ToString();
+                RollLight.gameObject.SetActive(true);
+                DiceLight.gameObject.SetActive(true);
+                Turntext.text = PlayerCur.getName() + ", please Roll the dice";
                 TurnTextBox.SetActive(true);
-                textBox.text = "Now it's your turn : " + PlayerCur.PlayerName;
-                if(Dices.BothLanded())
+                MiddleText.text = "Now it's your turn : " + PlayerCur.PlayerName;
+                if (Dices.BothLanded())
                 {
-                    
                     Dices.pressed = false;
                     Debug.Log("rolled dice");
                     GamePanel.SetActive(true);
+                    StartCoroutine(YourTurn());
                     PlayingOptions[0].SetActive(true);
                     PlayingOptions[1].SetActive(true);
-                    StartCoroutine(YourTurn());
                 }
                 break;
             case PlayerState.waitPlayMoves:
-                
-                Turntext.text = PlayerCur.curState.ToString();
+                Turntext.text = " Waiting for player " + PlayerCur.getName() + " to Play";
                 if (PlayerCur.MovesEnded())
                     PlayerCur.curState = PlayerState.FinishTurn;
                 // untill played all options
@@ -134,45 +156,40 @@ public class GameManager : MonoBehaviour
                 break;
             case PlayerState.FinishTurn:
                 Turntext.text = PlayerCur.curState.ToString();
+                CoinsAText.text = "Black - Shablul Coins : " + BlackP.ShabCoins;
+                CoinsBText.text = "White - Shablul Coins : " + WhiteP.ShabCoins;
                 Dices.FreeTurn = true;
-                
-                Debug.Log("PLayer finished playing");
-                
+                Debug.Log("Player finished playing");
                 changeTurn();
-                if (BlackP.numSoldiers < 10)
-                {
-                    Turntext.text = "White Wins!";
-                    PlayersText.SetActive(true);
-                    PlayerCur.curState = PlayerState.WinGame;
-                }
-                if (WhiteP.numSoldiers < 10)
-                {
-                    Turntext.text = "Black Wins!";
-                    PlayersText.SetActive(true);
-                    PlayerCur.curState = PlayerState.WinGame;
-                }
+                break;
+            case PlayerState.WinGame:
+                textBox.text = "Game Over ! Well Played";
                 break;
             default:
                 Debug.Log("Bad State");
                 break;
         }
 
-
+        // check for winning
         if (BlackP.numSoldiers < 10)
         {
             Turntext.text = "White Wins!";
             PlayersText.SetActive(true);
+            WhiteP.curState = PlayerState.WinGame;
+            PlayerCur = WhiteP;
         }
         if (WhiteP.numSoldiers < 10)
         {
             Turntext.text = "Black Wins!";
             PlayersText.SetActive(true);
+            BlackP.curState = PlayerState.WinGame;
+            PlayerCur = BlackP;
         }
 
     }
-    
-   
 
+
+    // func to change between the turns
     public void changeTurn()
     {
         int nowplaying = playerTurn;
@@ -183,6 +200,8 @@ public class GameManager : MonoBehaviour
             PlayingPlayer = "Black";
             WhiteP.curState = PlayerState.WaitForTurn;
             BlackP.curState = PlayerState.NeedToRoll;
+            WhiteLight.gameObject.SetActive(false);
+            BlackLight.gameObject.SetActive(true);
         }
         else
         {
@@ -190,58 +209,25 @@ public class GameManager : MonoBehaviour
             playerTurn = white;
             PlayingPlayer = "White";
             BlackP.curState = PlayerState.WaitForTurn;
-            WhiteP.curState = PlayerState.NeedToRoll;   
+            WhiteP.curState = PlayerState.NeedToRoll;
+            WhiteLight.gameObject.SetActive(true);
+            BlackLight.gameObject.SetActive(false);
         }
-        PlayerCur.HasFinishedPlaying = false;
     }
 
-    private void StartTurn(int playerTurn)
-
-    {
-        Turntext.text = "it is Player " + PlayingPlayer + " Turn, Please Roll the dice";
-
-        Roll.SetActive(true); // turn on dice button
-        DiceField.SetActive(true); // turn on dices area.
-
-        Debug.Log("start corotine drop");
-        
-        Debug.Log("end corotine drop");
-
-        PlayerCur.curState = PlayerState.waitPlayMoves;
-
-        //waituntill played. coroutine ->
-
-
-        //all click blocked, Dice alowed.
-        // Roll the Dice!
-        //while rolls isnotempty:
-        //Choose tile and steps:
-        //move(ChosenTile,num)
-        //if ismove -1 : " you cant move there!"
-        //
-    }
-
-    public IEnumerator PlayerRollCoroutine()
-    {
-        while(!PlayerCur.HasFinishedPlaying)
-        {
-            yield return new WaitForSeconds(1f);
-        }
-        yield return null;
-                
-    }
-
+    // IEnumerator to hold the player untill dice has been rolled.
     public IEnumerator YourTurn()
-    { 
+    {
         yield return new WaitForSecondsRealtime(5f);
         addPlayerMoves();
         hasRes = true;
         PlayerCur.curState = PlayerState.waitPlayMoves;
+        DiceLight.gameObject.SetActive(false);
+        RollLight.gameObject.SetActive(false);
     }
 
-    
 
-
+    // a function for the moves button (takes from player dice results)
     public void PlayerMoveA()
     {
         Debug.Log("A-playerA color" + BlackP.playerColor);
@@ -260,6 +246,8 @@ public class GameManager : MonoBehaviour
         PlayingOptions[0].SetActive(false);
 
     }
+
+    // a function for the moves button (takes from player dice results) Second option
     public void PlayerMoveB()
     {
         Debug.Log("B-playerA color" + BlackP.playerColor);
@@ -275,10 +263,11 @@ public class GameManager : MonoBehaviour
             T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]);
             PlayerCur.PlayableOptions.RemoveAt(0);
         }
-            
+
         PlayingOptions[1].SetActive(false);
     }
 
+    // a func that shows the relavant option on the button
     public void WriteButtonA(string s)
     {
         PlayingOptions[0].GetComponentInChildren<Text>().text = s;
@@ -288,7 +277,7 @@ public class GameManager : MonoBehaviour
         PlayingOptions[1].GetComponentInChildren<Text>().text = s;
     }
 
-
+    // after dice ans, makes player options available
     public void addPlayerMoves()
     {
         List<int> moves = new List<int>();
@@ -298,28 +287,38 @@ public class GameManager : MonoBehaviour
         PlayerCur.MovesLeft = 2;
     }
 
-    public class Player{
-        
+    // player class which helps contol players states and currents stats.
+    public class Player
+    {
+
         public int ShabCoins;
         public string PlayerName;
         public int playerColor; // black is 0 white is 1
         public int playerPower; // 1,2,3,4 - Fire, Water, Earth, Wind
-        public List <int> PlayableOptions;
+        public List<int> PlayableOptions;
         public bool HasFinishedPlaying;
         public int numSoldiers;
         private readonly int StartSoldiers = 15;
         public bool RolledTheDice;
         public int MovesLeft;
         public PlayerState curState;
+        private int white = 1;
+        private int black = 0;
 
         public Player(int a, int color)
         {
             HasFinishedPlaying = false;
+            ShabCoins = 0;
             playerColor = color;
             addcoins(a);
             playerPower = 0;
             numSoldiers = StartSoldiers;
             RolledTheDice = false;
+            if (playerColor == white)
+                PlayerName = "White";
+            else
+                PlayerName = "Black";
+
         }
         public void addcoins(int a)
         {
@@ -340,12 +339,12 @@ public class GameManager : MonoBehaviour
             PlayerName = name;
         }
 
-        public void setPlayableOptions (List<int> moves)
+        public void setPlayableOptions(List<int> moves)
         {
             PlayableOptions = moves;
             Debug.Log("new moves added");
         }
-        
+
         public List<int> getOptions()
         {
             return PlayableOptions;
@@ -360,7 +359,7 @@ public class GameManager : MonoBehaviour
         {
             RolledTheDice = false;
         }
-            
+
         public bool isRolled()
         {
             return RolledTheDice;
@@ -376,7 +375,7 @@ public class GameManager : MonoBehaviour
             return this.PlayableOptions.Count == 0;
         }
     }
-    
+
     public void PickFireA()
     {
         WhiteP.setPower(Fire);
@@ -440,9 +439,5 @@ public class GameManager : MonoBehaviour
     {
         textBox.text = s;
     }
-
-    public IEnumerable WaitForMovesEnd()
-    {
-        yield return new WaitUntil(() => PlayerCur.MovesEnded());
-    }
 }
+

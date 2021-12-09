@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4292821893340728679}
   - component: {fileID: 960922025017744135}
-  - component: {fileID: 8111063403129374775}
   - component: {fileID: 3814485151100442311}
   - component: {fileID: 5954989853394511560}
   - component: {fileID: 4571382562988316447}
@@ -43,18 +42,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2361346570150565357}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &8111063403129374775
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2361346570150565357}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81e494c9dbfad0c4e9a79a1fa41af53b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!23 &3814485151100442311
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -105,7 +92,7 @@ CapsuleCollider:
   m_GameObject: {fileID: 2361346570150565357}
   m_Material: {fileID: 0}
   m_IsTrigger: 0
-  m_Enabled: 1
+  m_Enabled: 0
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
@@ -122,6 +109,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8b64fb02819f1a4c9384abb3aa84dc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  color: 0
+  Value: 0
 --- !u!1 &5528384848000904296
 GameObject:
   m_ObjectHideFlags: 0
