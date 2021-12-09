@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Quit : MonoBehaviour
 {
+    public static string Start1 = "Lobby";
     void OnMouseUp()
     {
-        Application.Quit();
+        UnityEngine.SceneManagement.SceneManager.LoadScene(Start1);
     }
 }

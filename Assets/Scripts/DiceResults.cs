@@ -7,18 +7,26 @@ public class DiceResults : MonoBehaviour
 {
     [SerializeField]
     GameObject diceResText;
+
+    [SerializeField]
+    public static int res1Text;
+    [SerializeField]
+    public static int res2Text;
+
     [SerializeField]
     public static GameObject DicetoMove;
     Text ans;
     // Start is called before the first frame update
-    public Rigidbody rb = DicetoMove.GetComponent<Rigidbody>();
-    public void Roll()
+    //public Rigidbody rb = DicetoMove.GetComponent<Rigidbody>();
+    public void Roll2()
     {
-        rb.AddForce(new Vector3(0, -5, 0));
-        int result = Random.Range(1, 7);
-        int result2 = Random.Range(1, 7);
+        //rb.AddForce(new Vector3(0, -5, 0));
+        //int result = Random.Range(1, 7);
+        //int result2 = Random.Range(1, 7);
+        int result = res1Text;
+        int result2 = res2Text;
         ans = diceResText.GetComponent<Text>();
-        ans.text = "Dice 1: " + result + " Dice 2: " + result2;
+        ans.text = "Dice 1: " + result + "\n Dice 2: " + result2;
     }
     void Start()
     {

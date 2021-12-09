@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2813419371989060458}
   - component: {fileID: 2813419371989060463}
   - component: {fileID: 2813419371989060456}
-  - component: {fileID: 2813419371989060457}
+  - component: {fileID: 6788491621334773171}
   m_Layer: 0
   m_Name: CustomTile
   m_TagString: Untagged
@@ -82,7 +82,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &2813419371989060457
+--- !u!114 &6788491621334773171
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,8 +94,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f845665a84fb8304ebd1d13d06d71163, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  index: 0
   White: {fileID: 5528384848000904296, guid: 36925ea257fd2e747a68c116fed8fd55, type: 3}
   Black: {fileID: 7817671402139149081, guid: df6076be0b772e948ab1b5bcc2840362, type: 3}
   Iswhite: 1
-  startNumCheckers: 5
+  startNumCheckers: 3
   reduceZ: 0
