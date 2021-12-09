@@ -21,10 +21,14 @@ https://to-gaming.itch.io/shablul-backgammon (Beta)
   Dice (toRoll) - grey cylinder Object to trigger Roll .<br />
   
   ## Scripts and effects:
-  AddRemove.cs - Makes every Tile (24 tiles in game) be able to instanciate 'Soldiers'(Black or White) along the Tile.<br />
-  DragObject.cs - makes evry 'soldier' moveable by calculating x and z from mouse to soldier.<br />
-  DiceResults.cs - Sets new Dice values (and shake the dices) , visable on screen.<br />
-  Dice (Physics material) - bounciness to the required objects.
+  GameManager.cs - Controls how the game flows. [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/GameManager.cs) <br />
+  JumpDice.cs - important for the Dice Jumping ability [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/JumpDice.cs)<br />
+  RollDice.cs - this makes it possible for the roll button to be clickable or not, and more...  [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/RollDice.cs)<br />
+  TileManager.cs - this is the Tile Managment Class it stands Between gamemanager and Tile and makes it easier for them to communicate  [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/TileManage.cs)<br />
+  Tile.cs - Tile class, makes it easier for the tilemanager to control tiles, every tile can do many functions.  [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/Tile.cs)<br />
+  piece.cs - class piece (tile contains this class) [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/Piece.cs)<br />
+  DiceResults.cs - Sets new Dice values (and shake the dices) , visable on screen. [here](https://github.com/TO-Gaming/shablool-sheshbesh/blob/main/Assets/Scripts/DiceResults.cs)<br />
+  Dice (Physics material) - bounciness to the required objects. 
 ## מהות המשחק
 
  שבלול שש בש זה משחק אשר מאפשר חוויה הרבה יותר אינטנסיבית כי מדובר בגרסא שונה לחלוטין שמציעה למשתמש גם אופציות שונות תוך כדי המשחק, המשחק עצמו הוא מתחיל כמו שש בש אבל כאשר אתה הורג חייל של האויב הוא יוצא מהמשחק, ואתה מקבל על זה קרדיט, או כאשר השחקן מתקדם ועובר את ה"מעבר להתחלה", ואז בקרדיט שהרוויח יכול לרכוש "קלף כוח" שאיתו יוכל להשפיע על המשחק.
