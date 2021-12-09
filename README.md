@@ -3,16 +3,41 @@
 # shablool-sheshbesh
 
 **אזהרה - משחק ממכר**
-
+https://to-gaming.itch.io/shablul-backgammon (Beta)
+  
+#  Scenes Prefabs and Scripts:
+  
+  ## Scenes:
+  Lobby - in the lobby the player can choose if he wants to start or to do the tutorial (not implemented yet).<br />
+  SampleScene (Main Game) - the main scene of the game.<br />
+  Tutorial - in this scene the player is about to understand the rules of Shablul-Sheshbesh.<br />
+  
+  ## Prefabs:
+  WhitePiece - represents one white soldier (Dragable) .<br />
+  CustomTile - the editor can configure the contents of each Tile.<br />
+  GroupTiles - a prefab that holds 6 Customizable Tiles next to each other (4 pieces in game board) <br /> 
+  Dice (toQuit) - in Game option to exit to Lobby .<br />
+  Dice (toStart) - in Game option to Start the Game.<br />
+  Dice (toRoll) - grey cylinder Object to trigger Roll .<br />
+  
+  ## Scripts and effects:
+  AddRemove.cs - Makes every Tile (24 tiles in game) be able to instanciate 'Soldiers'(Black or White) along the Tile.<br />
+  DragObject.cs - makes evry 'soldier' moveable by calculating x and z from mouse to soldier.<br />
+  DiceResults.cs - Sets new Dice values (and shake the dices) , visable on screen.<br />
+  Dice (Physics material) - bounciness to the required objects.
 ## מהות המשחק
 
  שבלול שש בש זה משחק אשר מאפשר חוויה הרבה יותר אינטנסיבית כי מדובר בגרסא שונה לחלוטין שמציעה למשתמש גם אופציות שונות תוך כדי המשחק, המשחק עצמו הוא מתחיל כמו שש בש אבל כאשר אתה הורג חייל של האויב הוא יוצא מהמשחק, ואתה מקבל על זה קרדיט, או כאשר השחקן מתקדם ועובר את ה"מעבר להתחלה", ואז בקרדיט שהרוויח יכול לרכוש "קלף כוח" שאיתו יוכל להשפיע על המשחק.
 המשחק מיועד לפלאפון או לאינטרנט
 
- <img src="https://imag.malavida.com/mvimg/main-m/backgammon-plus-29363-1.jpg" width="350" title="hover text">
+ 
+ <img src="screenshablul.jpg" width="150" title="Lobby screen">
+ 
 
 
 ---
+## ScreenShots
+<img src="ShablulGameplay.jpg" width="550" title="hover text"> 
 
 
 ## רכיבים רשמיים
@@ -32,7 +57,6 @@
  
 ### 3. תהליכים
 
-תארו בפירוט את:
 
 * השחקן שנכנס למשחק רואה תמונות וחלקים מ"יכולות העל" שהמשחק מציע, נראה כאילו הולך לשחק שש בש אך סקרן לדעת איך יוכל לבטא את כישורי המשחק שלו במשחק שהוא שונה במהותו  
 *	התהליך המרכזי הוא להתקדם בעזרת הקוביות תוך כדי בניית בתים מבלי להיות מותקף על ידי היריב הבעיה היא שחוץ מקוביות, עוד אלמנט שקשור במזל במשחק הוא קלפי כוח שונים שיכול לממש אותם במשחק וישפיעו על הקרב. 
@@ -59,7 +83,7 @@
 * ניתן להחליף מטבעות שבלול ביכולות בחנות המשחק שיעזרו למתמודד לנצח
  * בנוסף ניתן להחליף מטבעות עבור קלפי כוח 
  * איך השחקן יוכל להשיג משאבים?
- * הריגת חייל מקנה לך 2 מטבעות שבלול
+ * הריגת חיילים מסויימים יביאו לך 2 מטבעות שבלול
  * במעבר של החיילים מסוף המגרש לתחילתו נצברים מטבעות
 * ברגע ששחקן מגיע למעברים הוא יקבל הודעה רשמית ויפה על קבלת המטבע, ובמידה ויש לו מספיק לרכישה יקבל עצה איך יוכל להשתמש בהם
 
