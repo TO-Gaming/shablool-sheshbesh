@@ -29,6 +29,9 @@ public class JumpDice : MonoBehaviour
             hasLanded = true;
             CurPos = transform.position;
         }
+        else
+            hasLanded = false;
+        
             
     }
 

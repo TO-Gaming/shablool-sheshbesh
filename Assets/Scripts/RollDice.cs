@@ -24,6 +24,9 @@ public class RollDice : MonoBehaviour
 
     JumpDice J1;
     JumpDice J2;
+    private const int white=1;
+    private const int black = 0;
+    private const int direction = 1;
 
     // Start is called before the first frame update
     void Start()
@@ -42,8 +45,8 @@ public class RollDice : MonoBehaviour
         int result = DiceResults.res1Text;
         int result2 = DiceResults.res2Text;
         ans = diceResText.GetComponent<TextMesh>();
-        ans.text = "Dice 1: " + result + "\nDice 2: " + result2;
-        GM.WritePanel("Your results are : \nDice 1: " + result + "\nDice 2: " + result2);
+        //ans.text = "Results: \n  " + result + "  ,  " + result2;
+        GM.WritePanel("Results: \nDice 1: " + result + "\nDice 2: " + result2);
         GM.WriteButtonA(""+result);
         GM.WriteButtonB("" + result2);
     }
@@ -58,6 +61,8 @@ public class RollDice : MonoBehaviour
             J2.Jump();
             FreeTurn = false;
             pressed = true;
+            GM.RollLight.gameObject.SetActive(false);
+            GM.DiceLight.gameObject.SetActive(true);
         }   
     }
 
@@ -66,8 +71,17 @@ public class RollDice : MonoBehaviour
         if (J1.hasLanded && J2.hasLanded)
         {
             UpdateRes();
-            //GameManager.PlayerCur.setRolled();
         }
+
+        if (GM.NeedRoll())
+        {
+            int dir = direction;
+            if (GameManager.PlayerCur.playerColor ==white)
+                dir = direction*-1;    
+            transform.Rotate(0, dir*50 * Time.deltaTime,0);
+        }
+            
+
     }
 
     //important func for blocking and setting new results for the game.
@@ -75,6 +89,11 @@ public class RollDice : MonoBehaviour
     {
         
         return J1.hasLanded && J2.hasLanded && pressed;
+    }
+
+    public bool Landed()
+    {
+        return J1.hasLanded && J2.hasLanded;
     }
 
     public void setFinish()

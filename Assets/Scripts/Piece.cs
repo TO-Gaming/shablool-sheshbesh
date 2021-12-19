@@ -11,7 +11,8 @@ public class Piece : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        color = -1;
+        Value = 1;
     }
 
     // Update is called once per frame
@@ -24,6 +25,15 @@ public class Piece : MonoBehaviour
     {
         Debug.Log("try to destroy");
         Destroy(this.gameObject);
+    }
+    public int getValue()
+    {
+        return Value;
+    }
+
+    public void setValue(int val)
+    {
+        Value = val;
     }
 
 }

@@ -10,8 +10,8 @@ public class Tile : MonoBehaviour
     private GameObject White;
     [SerializeField]
     private GameObject Black;
-     [SerializeField]
-    public int colorTile;
+
+    private int colorTile; // -1 empty  0-black  1-white 
     public float reduceZ=0f;
     [SerializeField]
     private int numCheckers=0;
@@ -24,34 +24,65 @@ public class Tile : MonoBehaviour
     private readonly int empty = -1;
     private static float space = -4.5f;
 
-   
+    public GameObject Torch;
+    public GameObject FireTorch;
+    public GameObject WaterTorch;
+    public GameObject EarthTorch;
+    public GameObject AirTorch;
+
     public MeshRenderer mr;
     public List<Piece> pieces = new List<Piece>();
     public List<GameObject> pieceObjects = new List<GameObject>();
     private bool hasStarted;
     private bool Clickable;
     public bool HasChosen;
+    public bool OnFire=false;
+    private static int FireEndturn=-1;
    
     void Start()
     {
         hasStarted = false;
         Clickable = true;
         HasChosen = false;
+        Torch = this.gameObject.transform.GetChild(0).gameObject;
+        FireTorch = this.gameObject.transform.GetChild(1).gameObject;
+        FireTorch.SetActive(false);
+        Torch.SetActive(false);
+        
     }
 
     //tile is pressable when it is play time.
     void OnMouseUp()
     {
         Debug.Log("before Clickable");
-        if (Clickable)
+        if (GameManager.PlayerCur.playerColor==colorTile)
         {
             Debug.Log("after Clickable");
+            //press any tile to hide last and show current
+            if (TileManage.SelectedTile != null)
+                TileManage.SelectedTile.Torch.SetActive(false);
             TileManage.SelectedTile = this;
+            TileManage.SelectedTile.Torch.SetActive(true);
             TileManage.SelectedTileID = index;
             GameManager.textBox.text = " Tile selected: " + index;
             HasChosen = true;
+            
         }
+
+        if (TileManage.powerTiles != 0)
+            if ( GameManager.PlayerCur.playerColor != colorTile){
+                Debug.Log("after Clickable");
+                //press any tile to hide last and show current
+                if (TileManage.SelectedTile != null)
+                    TileManage.SelectedTile.FireTorch.SetActive(false);
+                TileManage.SelectedTile = this;
+                TileManage.SelectedTile.Torch.SetActive(true);
+                TileManage.SelectedTileID = index;
+                GameManager.textBox.text = " Tile selected: " + index;
+            }
     }
+
+
 
     public void Init (int indextoset)
     {
@@ -72,11 +103,12 @@ public class Tile : MonoBehaviour
     public void StartFillTiles(int num, int color)
     {
         Debug.Log("start filling tiles "+num);
-        colorTile = color;
         for (int i = 0; i < num; i++)
         {
-            AddPiece();
+            AddPiece(color);
         }
+        colorTile = color;
+        //Debug.Log("changed tile " + index + " color " + colorTile+"to color "+color);
         
     }
 
@@ -89,12 +121,16 @@ public class Tile : MonoBehaviour
     {
         colorTile = color;
     }
+    public int getColor()
+    {
+        return colorTile;
+    }
   
     // adds pieces to the Tile, counting and saving in a list. (reducez is for the spaces for each new object)
-    public void AddPiece()
+    public void AddPiece(int playerColor)
     {
         
-        if(colorTile==white)
+        if(playerColor==white)
         {
             GameObject w = Instantiate(White);
             Piece Pcur = w.GetComponent<Piece>();
@@ -102,9 +138,9 @@ public class Tile : MonoBehaviour
             w.transform.localPosition = new Vector3(0, 0, space + reduceZ);
             pieces.Add(Pcur);
             pieceObjects.Add(w);
-            
+            colorTile = white;
         }
-        else if(colorTile == black)
+        else if(playerColor == black)
         {
             GameObject w = Instantiate(Black);
             Piece Pcur = w.GetComponent<Piece>();
@@ -112,19 +148,20 @@ public class Tile : MonoBehaviour
             w.transform.localPosition = new Vector3(0, 0, space + reduceZ);
             pieces.Add(Pcur);
             pieceObjects.Add(w);
+            colorTile = black;
         }
-        
         numCheckers++;
         reduceZ += 1f;
+        //Debug.Log("NOW TILE COLOR IS " + colorTile);
     }
 
 
     // removes piece from tile, (the top one), also count and update reducez
     public void RemovePiece()
     {
-        Debug.Log("try to remove, pieces count is : "+ pieces.Count);
-        Debug.Log("try to remove, numCheckers : " + numCheckers);
-        Debug.Log("try to remove from id  = " + getIndex());
+        //Debug.Log("try to remove, pieces count is : "+ pieces.Count);
+        //Debug.Log("try to remove, numCheckers : " + numCheckers);
+        //Debug.Log("try to remove from id  = " + getIndex());
         Piece p;
         GameObject g1;
         if (numCheckers>0)
@@ -140,9 +177,13 @@ public class Tile : MonoBehaviour
             Debug.Log("pieces new size " + pieces.Count);
             reduceZ -= 1f;
             numCheckers--;
+            if(numCheckers==0)
+            {
+                colorTile = empty;
+            }
         }
-        
-        
+        Debug.Log("NOW TILE "+ index+ "COLOR IS " + colorTile);
+
     }
 
     public bool isEmpty()
@@ -164,13 +205,18 @@ public class Tile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if(GameManager.turnCount==FireEndturn)
+        {
+            Debug.Log("firetime ended");
+            if(this.CountCheckers()>0)
+            {
+                Debug.Log("Burn!");
+            }
+            OnFire = false;
+            FireEndturn = -1;
+        }
     }
 
-    public int getColor()
-    {
-        return colorTile;
-    }
 
     public int getIndex()
     {
@@ -178,6 +224,12 @@ public class Tile : MonoBehaviour
     }
     public int getWorth()
     {
-        return 1;
+        return pieces[pieces.Count-1].getValue();
     }
+    public void StartFire(int curTurn)
+    {
+        OnFire = true;
+        FireEndturn = curTurn + 4;
+    }
+
 }

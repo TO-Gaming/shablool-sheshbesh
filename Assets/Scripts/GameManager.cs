@@ -12,8 +12,11 @@ public enum PlayerState
     NeedToRoll,
     waituntillres,
     waitPlayMoves,
+    PlayPower,
+    EnteredShop,
     FinishTurn,
-    WinGame
+    WinGame,
+    waitlanded
 }
 public class GameManager : MonoBehaviour
 {
@@ -21,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GameObject Roll;
+    [SerializeField]
+    private GameObject PowerDiceOBJ;
     [SerializeField]
     private GameObject TurnTextBox;
     [SerializeField]
@@ -31,18 +36,19 @@ public class GameManager : MonoBehaviour
     private GameObject PlaneText;
     [SerializeField]
     private GameObject EffectPanel;
+    
     [SerializeField]
     private TileManage T;
     [SerializeField]
-    private GameObject[] PlayingOptions;
+    public GameObject[] PlayingOptions;
     [SerializeField]
-    private GameObject GamePanel;
+    public GameObject GamePanel;
     [SerializeField]
     private GameObject DiceField;
     [SerializeField]
-    private Light DiceLight;
+    public Light DiceLight;
     [SerializeField]
-    private Light RollLight;
+    public Light RollLight;
     [SerializeField]
     private Light WhiteLight;
     [SerializeField]
@@ -59,28 +65,34 @@ public class GameManager : MonoBehaviour
     private readonly int startCoins = 0;
     private readonly int white = 1;
     private readonly int black = 0;
-    private readonly int Fire = 1;
-    private readonly int Water = 2;
-    private readonly int Earth = 3;
-    private readonly int Wind = 4;
+    public const int Fire = 1;
+    public const int Water = 2;
+    public const int Earth = 3;
+    public const int Wind = 4;
 
 
     //private string playerTurn;
-
-    private TileManage t;
+    [SerializeField]
+    //private TileManage t;
     public static Text textBox;
     public TextMesh Turntext;
+
+    public static int turnCount = 0;
     private int playerTurn; // 0 is black , 1 is white
+    public int playedOption;
     private string PlayingPlayer;
     public static Player PlayerCur;
     public PlayerState statePlaying;
     private Player BlackP;
     private Player WhiteP;
     private bool gameOver;
-    private RollDice Dices;
+    public static RollDice Dices;
+    [SerializeField]
+    public static PowerDice Powers;
     private bool Pickedeffect;
     private bool hasRes;
-
+    [SerializeField]
+    public EffectManager EffectManage;
     // Start is called before the first frame update
 
 
@@ -89,9 +101,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         Dices = Roll.GetComponent<RollDice>();
+        MiddleText.text = "";
         Turntext = TurnTextBox.GetComponent<TextMesh>();
         textBox = PlaneText.GetComponent<Text>();
         GamePanel.SetActive(false);
+        PowerDiceOBJ.SetActive(false);
 
         BlackP = new Player(0, black);
         WhiteP = new Player(0, white);
@@ -129,28 +143,63 @@ public class GameManager : MonoBehaviour
                 Turntext.text = "What is your power?";
                 EffectPanel.SetActive(true);
                 WhiteP.curState = PlayerState.WaitForTurn;
+                
+                
                 break;
             case PlayerState.NeedToRoll:
                 EffectPanel.SetActive(false);
-                RollLight.gameObject.SetActive(true);
-                DiceLight.gameObject.SetActive(true);
+                
+                PlayingOptions[0].SetActive(false);
+                PlayingOptions[1].SetActive(false);
                 Turntext.text = PlayerCur.getName() + ", please Roll the dice";
                 TurnTextBox.SetActive(true);
                 MiddleText.text = "Now it's your turn : " + PlayerCur.PlayerName;
                 if (Dices.BothLanded())
                 {
-                    Dices.pressed = false;
-                    Debug.Log("rolled dice");
-                    GamePanel.SetActive(true);
+                    Debug.Log("Both Landed");
+                    Turntext.text = "waiting for land";
+                    PlayerCur.curState = PlayerState.waitlanded;
                     StartCoroutine(YourTurn());
-                    PlayingOptions[0].SetActive(true);
-                    PlayingOptions[1].SetActive(true);
+                    Debug.Log("bye coroutine");
+
+                }
+                break;
+
+            case PlayerState.waitlanded:
+                if (Dices.BothLanded())
+                    PlayerCur.curState = PlayerState.waitPlayMoves;
+                break;
+            case PlayerState.PlayPower:
+                //chage back to waitPlayMoves.
+                EffectPlay();
+                if(PlayerCur.isEffectOver())
+                {
+                    PlayerCur.curState = PlayerState.waitPlayMoves;
                 }
                 break;
             case PlayerState.waitPlayMoves:
-                Turntext.text = " Waiting for player " + PlayerCur.getName() + " to Play";
+                
+                if(PlayerCur.PlayableOptions.Count>1)
+                {
+                    if (PlayerCur.PlayableOptions[0] == PlayerCur.PlayableOptions[1])
+                    {
+                        PowerDiceOBJ.SetActive(true);
+                        PlayerCur.finishedPowerPlaying = false;
+                        Powers.curPower = PlayerCur.playerPower;
+
+                    //PlayerCur.curState = PlayerState.PlayPower;
+                    }
+                }
+                    
+
+                Turntext.text = " Waiting for " + PlayerCur.getName() + " to Play";
                 if (PlayerCur.MovesEnded())
+                {
                     PlayerCur.curState = PlayerState.FinishTurn;
+                    TileManage.SelectedTile.Torch.SetActive(false);
+                    //turn off panel
+                }
+                    
                 // untill played all options
                 //PlayerCur.curState = PlayerState.FinishTurn;
                 break;
@@ -188,11 +237,35 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void EffectPlay()
+    {
+        PowerDiceOBJ.SetActive(true);
+        PlayerCur.EffectReady = false;
+        PlayerCur.finishedPowerPlaying = false;
+    }
+
+    public void OKeffect()
+    {
+        
+        switch(PlayerCur.playerPower)
+        {
+            case Fire:
+                Debug.Log("case fire ok effect");
+                TileManage.powerTiles = Fire;
+                T.SetFire(TileManage.SelectedTileID);
+                break;
+            case Water:
+                TileManage.powerTiles = Water;
+                break;
+        }
+    }
+
 
     // func to change between the turns
     public void changeTurn()
     {
         int nowplaying = playerTurn;
+        turnCount++;
         if (nowplaying == white)
         {
             PlayerCur = BlackP;
@@ -200,6 +273,7 @@ public class GameManager : MonoBehaviour
             PlayingPlayer = "Black";
             WhiteP.curState = PlayerState.WaitForTurn;
             BlackP.curState = PlayerState.NeedToRoll;
+            RollLight.gameObject.SetActive(true);
             WhiteLight.gameObject.SetActive(false);
             BlackLight.gameObject.SetActive(true);
         }
@@ -210,6 +284,7 @@ public class GameManager : MonoBehaviour
             PlayingPlayer = "White";
             BlackP.curState = PlayerState.WaitForTurn;
             WhiteP.curState = PlayerState.NeedToRoll;
+            RollLight.gameObject.SetActive(true);
             WhiteLight.gameObject.SetActive(true);
             BlackLight.gameObject.SetActive(false);
         }
@@ -218,53 +293,80 @@ public class GameManager : MonoBehaviour
     // IEnumerator to hold the player untill dice has been rolled.
     public IEnumerator YourTurn()
     {
-        yield return new WaitForSecondsRealtime(5f);
-        addPlayerMoves();
+        Debug.Log("wait 1 sec + DiceLand");
+        yield return new WaitForSecondsRealtime(4f);
+        //yield return new WaitUntil(()=>Dices.Landed());
+        Debug.Log("finish DiceLand");
+        
+        textBox.text = "Landed";
         hasRes = true;
         PlayerCur.curState = PlayerState.waitPlayMoves;
         DiceLight.gameObject.SetActive(false);
-        RollLight.gameObject.SetActive(false);
+        PlayingOptions[0].SetActive(true);
+        PlayingOptions[1].SetActive(true);
+        Dices.pressed = false;
+        addPlayerMoves();
     }
 
 
     // a function for the moves button (takes from player dice results)
     public void PlayerMoveA()
     {
-        Debug.Log("A-playerA color" + BlackP.playerColor);
-        Debug.Log("A-playerB color" + WhiteP.playerColor);
-
+        Debug.Log("Move A-pressed " + PlayerCur.playerColor + "selected tile id is "+TileManage.SelectedTileID);
+        Debug.Log("T.gettileid " + T.getTileID()+ "PlayerCur.getOptions()[0] "+ PlayerCur.getOptions()[0]);
+        playedOption = 0;
         if (PlayerCur.PlayableOptions.Count == 2)
         {
-            T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]); //PlayerCur.getOptions()[1]
-            PlayerCur.PlayableOptions.RemoveAt(0);
+            int dest = T.canMoveSteps(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]);
+            Debug.Log("dest is " + dest);
+            if (dest != -1)
+            {
+                T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), dest); //PlayerCur.getOptions()[1]
+                PlayerCur.PlayableOptions.RemoveAt(0);
+            }
         }
         else
         {
-            T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]);
-            PlayerCur.PlayableOptions.RemoveAt(0);
+            int dest = T.canMoveSteps(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]);
+            Debug.Log("dest is " + dest);
+            if (dest != -1)
+            {
+                T.MoveCheckers(PlayerCur.playerColor, T.getTileID(),dest);
+                PlayerCur.PlayableOptions.RemoveAt(0);
+            }
         }
-        PlayingOptions[0].SetActive(false);
+
+        Debug.Log("finish Move A-pressed player color: " + PlayerCur.playerColor);
 
     }
 
     // a function for the moves button (takes from player dice results) Second option
     public void PlayerMoveB()
     {
-        Debug.Log("B-playerA color" + BlackP.playerColor);
-        Debug.Log("B-playerB color" + WhiteP.playerColor);
-
+        Debug.Log("Move B-pressed " + PlayerCur.playerColor);
+        playedOption = 1;
         if (PlayerCur.PlayableOptions.Count == 2)
         {
-            T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[1]); //PlayerCur.getOptions()[1]
-            PlayerCur.PlayableOptions.RemoveAt(1);
+            Debug.Log("count 2, option B is"+ PlayerCur.getOptions()[1]);
+            int dest = T.canMoveSteps(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[1]);
+            if (dest!=-1)
+            {
+                T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), dest); //PlayerCur.getOptions()[1]
+                PlayerCur.PlayableOptions.RemoveAt(1);
+            }
         }
         else
         {
-            T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]);
-            PlayerCur.PlayableOptions.RemoveAt(0);
+            Debug.Log("count !=2, option B is "+ PlayerCur.getOptions()[0]);
+            int dest = T.canMoveSteps(PlayerCur.playerColor, T.getTileID(), PlayerCur.getOptions()[0]);
+            if (dest != -1)
+            {
+                T.MoveCheckers(PlayerCur.playerColor, T.getTileID(), dest);
+                PlayerCur.PlayableOptions.RemoveAt(0);
+            }
         }
+        Debug.Log("finish Move B-pressed " + PlayerCur.playerColor);
 
-        PlayingOptions[1].SetActive(false);
     }
 
     // a func that shows the relavant option on the button
@@ -304,6 +406,8 @@ public class GameManager : MonoBehaviour
         public PlayerState curState;
         private int white = 1;
         private int black = 0;
+        public bool EffectReady;
+        public bool finishedPowerPlaying;
 
         public Player(int a, int color)
         {
@@ -314,6 +418,8 @@ public class GameManager : MonoBehaviour
             playerPower = 0;
             numSoldiers = StartSoldiers;
             RolledTheDice = false;
+            EffectReady = false;
+            finishedPowerPlaying = true;
             if (playerColor == white)
                 PlayerName = "White";
             else
@@ -329,6 +435,11 @@ public class GameManager : MonoBehaviour
             return curState;
         }
 
+        public bool isEffectOver()
+        {
+            return finishedPowerPlaying;
+        }
+
         public void setPower(int power)
         {
             playerPower = power;
@@ -342,7 +453,7 @@ public class GameManager : MonoBehaviour
         public void setPlayableOptions(List<int> moves)
         {
             PlayableOptions = moves;
-            Debug.Log("new moves added");
+            Debug.Log("new moves added"+moves.ToArray().ToString());
         }
 
         public List<int> getOptions()
@@ -372,72 +483,45 @@ public class GameManager : MonoBehaviour
 
         public bool MovesEnded()
         {
-            return this.PlayableOptions.Count == 0;
+            return this.PlayableOptions.Count == 0 && this.finishedPowerPlaying;
         }
+        
     }
 
-    public void PickFireA()
-    {
-        WhiteP.setPower(Fire);
-        //ApickingEffect = false;
-    }
-    public void PickWaterA()
-    {
-        WhiteP.setPower(Water);
-        //ApickingEffect = false;
-    }
-    public void PickEarthA()
-    {
-        WhiteP.setPower(Earth);
-        //ApickingEffect = false;
-    }
-    public void PickWindA()
-    {
-        WhiteP.setPower(Wind);
-        //ApickingEffect = false;
-    }
-    public void PickFireB()
-    {
-        BlackP.setPower(Fire);
-        //BpickingEffect = false;
-    }
-    public void PickWaterB()
-    {
-        BlackP.setPower(Water);
-        //BpickingEffect = false;
-    }
-    public void PickEarthB()
-    {
-        BlackP.setPower(Earth);
-        //BpickingEffect = false;
-    }
-    public void PickWindB()
-    {
-        BlackP.setPower(Wind);
-        //BpickingEffect = false;
-    }
+  
 
     public void pickEffect()
     {
-        Pickedeffect = true;
+        Pickedeffect = true; //
+        BlackP.setPower(EffectManage.BlackPick);
+        WhiteP.setPower(EffectManage.WhitePick);
         EffectPanel.SetActive(false);
-        PlayerCur.curState = PlayerState.NeedToRoll;
-        Debug.Log("Effect panel ok ");
-    }
-
-    public void ShowPanel()
-    {
         GamePanel.SetActive(true);
-    }
-
-    public void HidePanel()
-    {
-        GamePanel.SetActive(false);
+        PlayerCur.curState = PlayerState.NeedToRoll;
+        RollLight.gameObject.SetActive(true);
+        Debug.Log("Effect panel ok ");
     }
 
     public void WritePanel(string s)
     {
         textBox.text = s;
     }
+
+    public bool NeedRoll()
+    {
+        return (PlayerCur.getState() == PlayerState.NeedToRoll);
+    }
+
+    public void StateEffect()
+    {
+        PlayerCur.curState = PlayerState.PlayPower;
+        Debug.Log("State changed to "+PlayerState.PlayPower.ToString());
+    }
+
+    public void OkFire()
+    {
+
+    }
+
 }
 
