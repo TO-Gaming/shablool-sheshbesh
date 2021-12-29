@@ -17,8 +17,8 @@ public class TileManage : MonoBehaviour
     GameManager GM;
 
     public static int powerTiles=0;
-    public static Tile SelectedTile;
-    public static int SelectedTileID;
+    public static Tile SelectedTile=null;
+    public static int SelectedTileID=-1;
 
     public Tile[] GameTiles;
     public int[] tileColors = new int[24];
@@ -76,15 +76,13 @@ public class TileManage : MonoBehaviour
     {
         int srcColor = GameTiles[srcIndex].getColor();
         int destColor = GameTiles[destIndex].getColor();
-        Debug.Log("src color" + srcColor + " dest color " + destColor);
+        Debug.Log("ismovable? src color: " + srcColor + " dest color " + destColor+" src "+srcIndex+" dest "+destIndex);
         if (GameTiles[destIndex].CountCheckers() == 0)
             return 1;
         if (destColor == srcColor)
         {
             return 1;
         }
-        else if (destColor == empty)
-            return 1;
         else if (GameTiles[destIndex].CountCheckers() == 1)
             return 2;
         else
@@ -95,21 +93,33 @@ public class TileManage : MonoBehaviour
     // main function to move the right checker according to what player ask, and player color
     public void MoveCheckers(int playerColor, int srcIndex, int destIndex)
     {
-        
+        // move player color > < , from > to > 
 
         int ans = isMovable(srcIndex, destIndex);
-        Debug.Log("ismovable : " +ans);
+        Debug.Log("ismovable: " +ans+ " src: "+srcIndex+ " dest "+destIndex);
         if (ans == 1)
         {
             GameTiles[destIndex].setColor(playerColor);
             GameTiles[srcIndex].RemovePiece();
             GameTiles[destIndex].AddPiece(playerColor);
-            GM.PlayingOptions[GM.playedOption].SetActive(false);
+            
+            //GM.refreshButtons();
+            // move succesful
+            Debug.Log("Move succesful from" + srcIndex + " to " + destIndex);
             GameManager.textBox.text = "moved from " + srcIndex + " to " + destIndex;
+            if((GameTiles[srcIndex].CountCheckers()==0||(GameManager.PlayerCur.doneMoves[0]&& GameManager.PlayerCur.doneMoves[1]))&& TileManage.SelectedTile!=null)
+            {
+                Debug.Log("entered movecheckers if ");
+                
+            }
+                
+
         }
         if(ans==2)
         {
             Debug.Log("ans is 2 - can eat dest index"+destIndex);
+            GameManager.PlayerOther.DecreaseSoldier();
+            GM.refreshLives();
             GameTiles[destIndex].RemovePiece();
             GameTiles[destIndex].setColor(playerColor);
             GameTiles[srcIndex].RemovePiece();
@@ -119,10 +129,10 @@ public class TileManage : MonoBehaviour
         }
         else
         {
-            Debug.Log("ismovable ans is -1   cant move dest index is" +destIndex);
+            Debug.Log("ismovable ans is "+ans+"  cant move from"+srcIndex+" to " +destIndex);
             GameManager.textBox.text = "you cannot do that!";
         }
-        Debug.Log("now color srcTile is" + GameTiles[srcIndex].getColor() + " aand colo dest tile: " + GameTiles[destIndex].getColor());
+        //Debug.Log("now color srcTile is" + GameTiles[srcIndex].getColor() + " aand colo dest tile: " + GameTiles[destIndex].getColor());
 
     }
 
@@ -138,13 +148,18 @@ public class TileManage : MonoBehaviour
             Debug.Log("player black moving");
             if (srcIndex + numofMoves >= BoardLOOP)
             {
+                Debug.Log("getting dest with loop");
                 destIndex = (srcIndex + numofMoves) % BoardLOOP;
                 if(isMovable(srcIndex,destIndex)!=-1)
                     GameManager.PlayerCur.addcoins(GameTiles[srcIndex].getWorth());
                 //GameManager.PlayersText.GetComponent<TextMesh>().text = "You Passed Shablul Loop and Recieved " + money + "Shablul Coins";
             }
             else
+            {
+                //Debug.Log("getting dest whithout loop");
                 destIndex = srcIndex + numofMoves;
+
+            }
         }
         if (playerColor == white)
         {
@@ -171,9 +186,32 @@ public class TileManage : MonoBehaviour
             return destIndex;
         return -1;
     }
+
+    public int canMoveStepsback(int playerColor, int tileID, int numMoves) // -1 cant , other - destTile version for wind element
+    {
+        int destIndex = GetDest(playerColor, tileID, numMoves);
+        int canMove = isMovable(tileID, destIndex);
+        Debug.Log("ismovable " + canMove);
+        if (canMove == 1)
+            return destIndex;
+        return -1;
+    }
+
     public void SetFire(int TileId)
     {
-        Debug.Log("Starting fire from turn " + GameManager.turnCount);
+        Debug.Log("Starting fire from turn " + GameManager.turnCount+" on tile"+TileId);
         GameTiles[TileId].StartFire(GameManager.turnCount);
     }
+
+    // set blow back
+
+    public bool checkCanBlow(int playerColor, int tileID, int numMoves)
+    {
+        bool ans = true;
+        if (canMoveSteps(playerColor, tileID, numMoves) == -1)
+            ans = false;
+        return ans;
+    }
+
+
 }

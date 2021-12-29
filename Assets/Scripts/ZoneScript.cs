@@ -9,6 +9,8 @@ public class ZoneScript : MonoBehaviour
     public GameObject dice1;
     [SerializeField]
     public GameObject dice2;
+    [SerializeField]
+    public bool everyThirdDouble ;
 
     public readonly int one = 1;
     public readonly int two = 2;
@@ -20,15 +22,16 @@ public class ZoneScript : MonoBehaviour
 
     Vector3 diceVel;
     Vector3 diceVel2;
+    [SerializeField]
     JumpDice J1;
+    [SerializeField]
     JumpDice J2;
 
     
 
     private void Start()
     {
-        J1 = dice1.gameObject.GetComponent<JumpDice>();
-        J2 = dice2.gameObject.GetComponent<JumpDice>();
+
     }
 
 
@@ -48,22 +51,22 @@ public class ZoneScript : MonoBehaviour
             switch(other.gameObject.name)
             {
                 case "Side1":
-                    DiceResults.res1Text = six;
+                    RollDice.res1Text = six;
                     break;
                 case "Side2":
-                    DiceResults.res1Text = five;
+                    RollDice.res1Text = five;
                     break;
                 case "Side3":
-                    DiceResults.res1Text = four;
+                    RollDice.res1Text = four;
                     break;
                 case "Side4":
-                    DiceResults.res1Text = two;
+                    RollDice.res1Text = two;
                     break;
                 case "Side5":
-                    DiceResults.res1Text = one;
+                    RollDice.res1Text = one;
                     break;
                 case "Side6":
-                    DiceResults.res1Text = three;
+                    RollDice.res1Text = three;
                     break;
             }
         }
@@ -72,25 +75,28 @@ public class ZoneScript : MonoBehaviour
             switch (other.gameObject.name)
             {
                 case "Side1":
-                    DiceResults.res2Text = six;
+                    RollDice.res2Text = six;
                     break;
                 case "Side2":
-                    DiceResults.res2Text = five;
+                    RollDice.res2Text = five;
                     break;
                 case "Side3":
-                    DiceResults.res2Text = four;
+                    RollDice.res2Text = four;
                     break;
                 case "Side4":
-                    DiceResults.res2Text = two;
+                    RollDice.res2Text = two;
                     break;
                 case "Side5":
-                    DiceResults.res2Text = one;
+                    RollDice.res2Text = one;
                     break;
                 case "Side6":
-                    DiceResults.res2Text = three;
+                    RollDice.res2Text = three;
                     break;
             }
+            
         }
+        if(GameManager.turnCount%3==0 && everyThirdDouble)
+            RollDice.res1Text = RollDice.res2Text;
     }
 
     // Update is called once per frame

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 //  tile class, holds pieces and also makes it possible for the tilemanager to do some tasks within the tiles.
 public class Tile : MonoBehaviour
@@ -26,6 +27,7 @@ public class Tile : MonoBehaviour
 
     public GameObject Torch;
     public GameObject FireTorch;
+    public GameObject BurnParticles;
     public GameObject WaterTorch;
     public GameObject EarthTorch;
     public GameObject AirTorch;
@@ -37,27 +39,130 @@ public class Tile : MonoBehaviour
     private bool Clickable;
     public bool HasChosen;
     public bool OnFire=false;
-    private static int FireEndturn=-1;
+    private int FireEndturn=-1;
+    public GameManager GM;
    
     void Start()
     {
+        GM = GetComponentInParent<GameManager>();
         hasStarted = false;
         Clickable = true;
         HasChosen = false;
+        foreach (Transform child in this.transform)
+        {
+            if (child.tag == "FireLight")
+                FireTorch = child.gameObject;
+            if (child.tag == "WaterLight")
+                WaterTorch = child.gameObject;
+            if (child.tag == "AirLight")
+                AirTorch = child.gameObject;
+            if (child.tag == "EarthLight")
+                EarthTorch = child.gameObject;
+            if (child.tag == "FireBurn")
+                BurnParticles = child.gameObject;
+        }
         Torch = this.gameObject.transform.GetChild(0).gameObject;
-        FireTorch = this.gameObject.transform.GetChild(1).gameObject;
-        FireTorch.SetActive(false);
-        Torch.SetActive(false);
-        
+        //FireTorch = GameObject.FindGameObjectWithTag("FireLight").gameObject;
+        BurnParticles.SetActive(false);
+        if (FireTorch == null)
+            Debug.Log("firetorch null");
     }
 
     //tile is pressable when it is play time.
     void OnMouseUp()
     {
-        Debug.Log("before Clickable");
-        if (GameManager.PlayerCur.playerColor==colorTile)
+        Debug.Log("before Click colorTile is "+colorTile+" index is "+index);
+        if (GameManager.isPowering())
         {
-            Debug.Log("after Clickable");
+            Debug.Log("powertiles are :"+ TileManage.powerTiles + " check if not emptypower");
+            switch (TileManage.powerTiles)
+            {
+                case GameManager.Fire:
+                    if (GameManager.PlayerCur.playerColor != colorTile)
+                    {
+                        Debug.Log("after Clickable");
+                        //press any tile to hide last and show current
+                        if (TileManage.SelectedTile != null)
+                        {
+                            TileManage.SelectedTile.FireTorch.SetActive(false);
+                            //TileManage.SelectedTile.Torch.SetActive(false);
+                            GameManager.ResetTile();
+                        }
+
+                        TileManage.SelectedTile = this;
+                        TileManage.SelectedTile.FireTorch.SetActive(true);
+                        //TileManage.ShowPowerTorch(SelectedTile);
+                        TileManage.SelectedTileID = index;
+                        GameManager.textBox.text = " Tile selected: " + index;
+                    }
+                    break;
+                case GameManager.Water:
+                    if (GameManager.PlayerCur.playerColor == colorTile)
+                    {
+                        Debug.Log("after Clickable");
+                        //press any tile to hide last and show current
+                        if (TileManage.SelectedTile != null)
+                        {
+                            
+                            TileManage.SelectedTile.WaterTorch.SetActive(false);
+                            //TileManage.SelectedTile.Torch.SetActive(false);
+                            GameManager.ResetTile();
+                        }
+
+                        TileManage.SelectedTile = this;
+                        TileManage.SelectedTile.WaterTorch.SetActive(true);
+                        //TileManage.ShowPowerTorch(SelectedTile);
+                        TileManage.SelectedTileID = index;
+                        GameManager.textBox.text = " Tile selected: " + index;
+                    }
+                    break;
+                case GameManager.Earth:
+                    if (colorTile== empty)
+                    {
+                        Debug.Log("after Clickable");
+                        //press any tile to hide last and show current
+                        if (TileManage.SelectedTile != null)
+                        {
+                            
+                            TileManage.SelectedTile.EarthTorch.SetActive(false);
+                            //TileManage.SelectedTile.Torch.SetActive(false);
+                            GameManager.ResetTile();
+                        }
+
+                        TileManage.SelectedTile = this;
+                        TileManage.SelectedTile.EarthTorch.SetActive(true);
+                        //TileManage.ShowPowerTorch(SelectedTile);
+                        TileManage.SelectedTileID = index;
+                        GameManager.textBox.text = " Tile selected: " + index;
+                    }
+                    break;
+                case GameManager.Wind:
+                    if ((GameManager.PlayerCur.playerColor+1)%2 == colorTile)
+                    {
+                                Debug.Log("after Clickable");
+                                //press any tile to hide last and show current
+                                if (TileManage.SelectedTile != null)
+                                {
+                                    
+                                    TileManage.SelectedTile.AirTorch.SetActive(false);
+                                    //TileManage.SelectedTile.Torch.SetActive(false);
+                                    GameManager.ResetTile();
+
+                                }
+
+                                TileManage.SelectedTile = this;
+                                TileManage.SelectedTile.AirTorch.SetActive(true);
+                                //TileManage.ShowPowerTorch(SelectedTile);
+                                TileManage.SelectedTileID = index;
+                                GameManager.textBox.text = " Tile selected: " + index;
+                    }
+                    break;
+
+            }
+        }
+        else if (GameManager.PlayerCur.playerColor==colorTile && GameManager.clicktiles && !EventSystem.current.IsPointerOverGameObject()) // need to add here states.
+        {
+            Debug.Log("after Clickable, colorTile is the same");
             //press any tile to hide last and show current
             if (TileManage.SelectedTile != null)
                 TileManage.SelectedTile.Torch.SetActive(false);
@@ -69,17 +174,9 @@ public class Tile : MonoBehaviour
             
         }
 
-        if (TileManage.powerTiles != 0)
-            if ( GameManager.PlayerCur.playerColor != colorTile){
-                Debug.Log("after Clickable");
-                //press any tile to hide last and show current
-                if (TileManage.SelectedTile != null)
-                    TileManage.SelectedTile.FireTorch.SetActive(false);
-                TileManage.SelectedTile = this;
-                TileManage.SelectedTile.Torch.SetActive(true);
-                TileManage.SelectedTileID = index;
-                GameManager.textBox.text = " Tile selected: " + index;
-            }
+        
+
+
     }
 
 
@@ -159,17 +256,17 @@ public class Tile : MonoBehaviour
     // removes piece from tile, (the top one), also count and update reducez
     public void RemovePiece()
     {
-        //Debug.Log("try to remove, pieces count is : "+ pieces.Count);
-        //Debug.Log("try to remove, numCheckers : " + numCheckers);
-        //Debug.Log("try to remove from id  = " + getIndex());
+        Debug.Log("try to remove, pieces count is : "+ pieces.Count);
+        Debug.Log("try to remove, numCheckers : " + numCheckers);
+        Debug.Log("try to remove from id  = " + getIndex());
         Piece p;
         GameObject g1;
         if (numCheckers>0)
         {
-            Debug.Log("piecesObject new size " + pieceObjects.Count);
+            
+            Debug.Log("remove piece from "+ index+" piecesObject new size " + pieceObjects.Count);
             g1 = pieceObjects[pieceObjects.Count - 1];
             p = pieces[pieces.Count - 1];
-            Debug.Log("p null? " + p);
             pieces.RemoveAt(pieces.Count - 1);
             pieceObjects.RemoveAt(pieceObjects.Count - 1);
             //p.deletePiece();
@@ -180,6 +277,12 @@ public class Tile : MonoBehaviour
             if(numCheckers==0)
             {
                 colorTile = empty;
+                if(TileManage.SelectedTileID==index)
+                {
+                    Debug.Log("reset tile and torch");
+                    Torch.SetActive(false);
+                    GameManager.ResetTile();
+                }
             }
         }
         Debug.Log("NOW TILE "+ index+ "COLOR IS " + colorTile);
@@ -205,15 +308,30 @@ public class Tile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.turnCount==FireEndturn)
+        if(GameManager.turnCount==FireEndturn&&OnFire)
         {
             Debug.Log("firetime ended");
-            if(this.CountCheckers()>0)
+            Debug.Log("Tile info!: " + index + " and num checkers: " + numCheckers);
+            if (numCheckers>0)
             {
                 Debug.Log("Burn!");
+                Debug.Log("Tile info!: "+index+" and num checkers: "+numCheckers);
+                BurnParticles.SetActive(false);
+                OnFire = false;
+                RemovePiece();
+                GameManager.PlayerCur.numSoldiers--;
+                GM.refreshLives();
+                FireEndturn = -1;
             }
-            OnFire = false;
-            FireEndturn = -1;
+            else
+            {
+                BurnParticles.SetActive(false);
+                OnFire = false;
+                FireEndturn = -1;
+            }
+            
+            
+            
         }
     }
 
@@ -230,6 +348,8 @@ public class Tile : MonoBehaviour
     {
         OnFire = true;
         FireEndturn = curTurn + 4;
+        BurnParticles.SetActive(true);
+        Debug.Log("Fire end turn:" + FireEndturn + " curTurn: " + curTurn);
     }
 
 }

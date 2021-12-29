@@ -6,6 +6,11 @@ TagManager:
   tags:
   - dice1
   - dice2
+  - FireLight
+  - WaterLight
+  - EarthLight
+  - AirLight
+  - FireBurn
   layers:
   - Default
   - TransparentFX

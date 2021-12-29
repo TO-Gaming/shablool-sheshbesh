@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,8 +10,13 @@ public class RollDice : MonoBehaviour
     GameObject diceResText;
     [SerializeField]
     GameManager GM;
+    [SerializeField]
+    Material BlackMaterial;
+    [SerializeField]
+    Material WhiteMaterial;
 
-    TextMesh ans;
+
+    TextMesh DiceText;
 
     [SerializeField]
     public GameObject dice1;
@@ -20,21 +26,31 @@ public class RollDice : MonoBehaviour
     public bool FreeTurn;
     public bool isInUse;
     public bool pressed;
-    
+    public int result=0;
+    public int result2=0;
+    [SerializeField]
+    public static int res1Text;
+    [SerializeField]
+    public static int res2Text;
 
+    private MeshRenderer meshRenderer;
     JumpDice J1;
     JumpDice J2;
     private const int white=1;
     private const int black = 0;
     private const int direction = 1;
+    //private bool haslanded;
+    private bool hasRes;
 
     // Start is called before the first frame update
     void Start()
     {
         FreeTurn = true;
         pressed = false;
+        DiceText = diceResText.GetComponent<TextMesh>();
         J1 = dice1.gameObject.GetComponent<JumpDice>();
         J2 = dice2.gameObject.GetComponent<JumpDice>();
+        meshRenderer = GetComponent<MeshRenderer>();
     }
 
     // finish getting result and update it.
@@ -42,20 +58,32 @@ public class RollDice : MonoBehaviour
     {
         //int result = Random.Range(1, 7);
         //int result2 = Random.Range(1, 7);
-        int result = DiceResults.res1Text;
-        int result2 = DiceResults.res2Text;
-        ans = diceResText.GetComponent<TextMesh>();
+        Debug.Log("updateRes");
+        result = res1Text;
+        result2 = res2Text; // change back to res2
+
         //ans.text = "Results: \n  " + result + "  ,  " + result2;
-        GM.WritePanel("Results: \nDice 1: " + result + "\nDice 2: " + result2);
-        GM.WriteButtonA(""+result);
+        GM.WritePanel("  "+ result + ", " + result2);
+        GM.WriteButtonA("" + result);
         GM.WriteButtonB("" + result2);
+        if (res1Text == res2Text)
+        {
+            StartCoroutine("ShowHideText");
+        }
     }
+
+ 
+
 
     // when pressing & relevant makes the dice jump.
     void OnMouseUp()
     {
+        //Debug.Log("J1.hasLanded && J2.hasLanded && FreeTurn" + J1.hasLanded + " " + J2.hasLanded + "" + FreeTurn);
         if(J1.hasLanded && J2.hasLanded && FreeTurn)
         {
+            GameManager.PlayerCur.RolledTheDice = true;
+            hasRes = false;
+            //haslanded = false;
             isInUse = true;
             J1.Jump();
             J2.Jump();
@@ -68,16 +96,29 @@ public class RollDice : MonoBehaviour
 
     private void Update()
     {
-        if (J1.hasLanded && J2.hasLanded)
+        if (J1.hasLanded && J2.hasLanded&&GameManager.PlayerCur.curState==PlayerState.waitlanded&&!hasRes)
         {
-            UpdateRes();
+            //Debug.Log("if inside update - hasRes now set true");
+            //UpdateRes();
+            hasRes = true;
         }
 
-        if (GM.NeedRoll())
+        if (GM.NeedRoll()|| GM.NeedMove())
         {
+            //hasRes = false;
+            
+            //Debug.Log("need roll");
             int dir = direction;
             if (GameManager.PlayerCur.playerColor ==white)
-                dir = direction*-1;    
+            {
+                dir = direction*-1;
+                meshRenderer.material = WhiteMaterial;
+            }
+            else
+            {
+                meshRenderer.material = BlackMaterial;
+            }
+                    
             transform.Rotate(0, dir*50 * Time.deltaTime,0);
         }
             
@@ -87,7 +128,7 @@ public class RollDice : MonoBehaviour
     //important func for blocking and setting new results for the game.
     public bool BothLanded()
     {
-        
+        //Debug.Log("pressed is " + pressed.ToString());
         return J1.hasLanded && J2.hasLanded && pressed;
     }
 
@@ -103,17 +144,22 @@ public class RollDice : MonoBehaviour
 
     public int getA()
     {
-        return DiceResults.res1Text;
+        return res1Text;
     }
     public int getB()
     {
-        return DiceResults.res2Text;
+        return res2Text;
     }
 
-    public IEnumerable WaitForDrop()
+    public IEnumerator ShowHideText()
     {
+        DiceText.text = "Double! you recieve 1 Shablul coin";
+        diceResText.SetActive(true);
         Debug.Log("pressed is " + pressed);
-        yield return new WaitUntil(() => BothLanded());
+        yield return new WaitForSecondsRealtime(3f);
+        DiceText.text = "";
+        diceResText.SetActive(false);
     }
+    
 
 }
